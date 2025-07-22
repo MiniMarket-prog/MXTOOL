@@ -57,7 +57,7 @@ export default function IPBlacklistChecker() {
 
       const data = await response.json()
       setResults(data.results)
-    } catch (err) {
+    } catch {
       setError("Failed to check IP addresses. Please try again.")
     } finally {
       setLoading(false)

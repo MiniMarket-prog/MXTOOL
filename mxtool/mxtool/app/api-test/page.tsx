@@ -6,9 +6,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2, CheckCircle, AlertTriangle, Info } from "lucide-react"
 
+interface ApiTestResult {
+  success?: boolean
+  error?: string
+  message?: string
+  apiKeyConfigured?: boolean
+  sampleData?: Record<string, unknown>
+  details?: string
+  troubleshooting?: {
+    possibleIssues?: string[]
+    steps?: string[]
+  }
+}
+
 export default function ApiTestPage() {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<ApiTestResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const testApiConnection = async () => {
@@ -40,7 +53,9 @@ export default function ApiTestPage() {
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">MXToolbox API Test</h1>
-        <p className="text-muted-foreground">Test your MXToolbox API connection to ensure it's working correctly</p>
+        <p className="text-muted-foreground">
+          Test your MXToolbox API connection to ensure it&apos;s working correctly
+        </p>
       </div>
 
       <Card>
@@ -76,7 +91,7 @@ export default function ApiTestPage() {
           {result && (
             <div className="space-y-4">
               {result.success ? (
-                <Alert variant="success" className="bg-green-50 border-green-200">
+                <Alert className="bg-green-50 border-green-200">
                   <CheckCircle className="h-4 w-4 text-green-600" />
                   <AlertTitle className="text-green-800">API Connection Successful</AlertTitle>
                   <AlertDescription className="text-green-700">
@@ -102,9 +117,9 @@ export default function ApiTestPage() {
             <p className="font-medium">Troubleshooting Tips:</p>
             <ul className="list-disc pl-5 space-y-1 mt-2">
               <li>Make sure your MXToolbox API key is correctly set in the .env.local file</li>
-              <li>Verify that you're using the correct authentication method (Basic Auth)</li>
+              <li>Verify that you&apos;re using the correct authentication method (Basic Auth)</li>
               <li>Check if your API key has the necessary permissions for blacklist lookups</li>
-              <li>Ensure your API key is active and hasn't expired</li>
+              <li>Ensure your API key is active and hasn&apos;t expired</li>
               <li>
                 <a
                   href="https://mxtoolbox.com/api/"
