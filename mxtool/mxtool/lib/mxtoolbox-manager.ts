@@ -56,6 +56,7 @@ class MXToolboxManager {
   }
 
   private initializeKeyStatus() {
+    this.keyStatus.clear()
     this.apiKeys.forEach((key) => {
       this.keyStatus.set(key, {
         key: key.substring(0, 8) + "...",

@@ -1,84 +1,74 @@
 import { NextResponse } from "next/server"
+import { mxtoolboxManager } from "@/lib/mxtoolbox-manager"
 
-// This endpoint helps test if the MXToolbox API key is working correctly
 export async function GET() {
   try {
-    const apiKey = process.env.MXTOOLBOX_API_KEY
-
-    if (!apiKey) {
-      return NextResponse.json({ error: "MXTOOLBOX_API_KEY is not defined in environment variables" }, { status: 500 })
-    }
-
-    // Test IP to check
-    const testIp = "8.8.8.8"
-    const apiUrl = `https://mxtoolbox.com/api/v1/Lookup/blacklist/${testIp}`
-
-    console.log("Testing MXToolbox API with URL:", apiUrl)
-    console.log("API Key length:", apiKey.length)
-
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        Authorization: apiKey,
-        "Content-Type": "application/json",
-      },
-    })
-
-    console.log("Response status:", response.status)
-    console.log("Response headers:", Object.fromEntries(response.headers.entries()))
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("Error response body:", errorText)
-
+    // Check if we have any API keys configured
+    if (mxtoolboxManager.getTotalKeys() === 0) {
       return NextResponse.json(
         {
-          error: `API returned ${response.status}: ${response.statusText}`,
-          details: errorText,
-          apiKeyLength: apiKey.length,
-          apiKeyFirstChars: apiKey.substring(0, 8) + "...",
+          success: false,
+          error: "No MXToolbox API keys configured",
           troubleshooting: {
-            possibleIssues: [
-              "API key format might be incorrect",
-              "API key might not have blacklist lookup permissions",
-              "Rate limiting might be in effect",
-              "API endpoint URL might have changed",
+            steps: [
+              "1. Add MXTOOLBOX_API_KEY_1=your_first_key to environment variables",
+              "2. Add MXTOOLBOX_API_KEY_2=your_second_key for better performance",
+              "3. You can add up to 10+ keys (MXTOOLBOX_API_KEY_3, etc.)",
+              "4. Redeploy your application",
+              "5. Each key allows ~50 requests per minute",
             ],
           },
         },
-        { status: response.status },
+        { status: 500 },
       )
     }
 
-    const data = await response.json()
-    console.log("Success response:", data)
+    console.log(`Testing MXToolbox API with ${mxtoolboxManager.getTotalKeys()} keys`)
+
+    // Test with a known good IP
+    const testIp = "8.8.8.8"
+    const result = await mxtoolboxManager.makeRequest(testIp)
+
+    console.log("API test successful:", result)
 
     return NextResponse.json({
       success: true,
-      message: "API connection successful",
-      apiKeyConfigured: true,
+      message: "API connection successful with key rotation",
+      totalKeys: mxtoolboxManager.getTotalKeys(),
+      availableKeys: mxtoolboxManager.getAvailableKeys(),
+      usedKey: result.usedKey,
+      testIp,
+      keyStatistics: mxtoolboxManager.getKeyStatistics(),
       sampleData: {
-        commandType: data.CommandType,
-        hasInformation: !!data.Information,
-        informationCount: data.Information ? data.Information.length : 0,
-        hasPassed: !!data.Passed,
-        passedCount: data.Passed ? data.Passed.length : 0,
-        hasFailed: !!data.Failed,
-        failedCount: data.Failed ? data.Failed.length : 0,
-        fullResponse: data,
+        commandType: result.data.CommandType,
+        hasInformation: !!result.data.Information,
+        informationCount: result.data.Information ? result.data.Information.length : 0,
+        hasPassed: !!result.data.Passed,
+        passedCount: result.data.Passed ? result.data.Passed.length : 0,
+        hasFailed: !!result.data.Failed,
+        failedCount: result.data.Failed ? result.data.Failed.length : 0,
       },
     })
   } catch (error) {
     console.error("Error testing API:", error)
     return NextResponse.json(
       {
+        success: false,
         error: error instanceof Error ? error.message : "Unknown error occurred",
+        totalKeys: mxtoolboxManager.getTotalKeys(),
+        availableKeys: mxtoolboxManager.getAvailableKeys(),
         troubleshooting: {
-          steps: [
-            "1. Verify your API key is correct",
-            "2. Check if your API key has blacklist lookup permissions",
-            "3. Try a different IP address",
-            "4. Contact MXToolbox support if the issue persists",
+          possibleIssues: [
+            "One or more API keys might be invalid",
+            "API keys might not have blacklist lookup permissions",
+            "All keys might be rate limited",
+            "Network connectivity issues",
+          ],
+          nextSteps: [
+            "1. Verify all your API keys are correct",
+            "2. Check your MXToolbox subscription includes blacklist lookups",
+            "3. Try again in a few minutes if rate limited",
+            "4. Add more API keys for better performance",
           ],
         },
       },
