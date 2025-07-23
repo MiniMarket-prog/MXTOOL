@@ -17,7 +17,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 const user = {
   name: "Admin User",
   email: "admin@ipchecker.pro",
-  avatar: "/placeholder.svg?height=32&width=32&text=AU",
+  avatar: "/avatars/admin.jpg",
 }
 
 export function NavUser() {
