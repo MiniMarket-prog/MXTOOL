@@ -32,6 +32,7 @@ import {
   Plus,
   CheckCircle,
   Sparkles,
+  BarChart3,
 } from "lucide-react"
 
 // Menu data organized by categories
@@ -48,6 +49,13 @@ const menuData = {
       url: "/overview",
       icon: Eye,
       description: "Complete feature overview",
+    },
+    {
+      title: "Statistics",
+      url: "/statistics",
+      icon: BarChart3,
+      description: "Admin analytics and insights",
+      badge: "Admin",
     },
   ],
   management: [
@@ -174,6 +182,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <span className={`transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}>
                           {item.title}
                         </span>
+                        {item.badge && (
+                          <Badge
+                            variant="secondary"
+                            className={`ml-auto text-xs transition-opacity duration-300 ${
+                              isHovered ? "opacity-100" : "opacity-0"
+                            }`}
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
